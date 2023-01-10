@@ -27,3 +27,5 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 aws.Rproj
+awscredentials.R
+sheetaddress.txt
