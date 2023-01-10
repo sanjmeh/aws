@@ -1,6 +1,5 @@
 # aws credentials for IAM access for programatic access using user: smRAPI
 pacman::p_load(aws.s3,glue,data.table,janitor,aws.iam,aws.signature,lubridate,purrr,gt,tidyverse)
-source("smallfns.R")
 source("awscredentials.R")
 
 blist <- bucketlist(key = Sys.getenv("AWS_ACCESS_KEY_ID") ,secret = Sys.getenv("AWS_SECRET_ACCESS_KEY"))
@@ -14,11 +13,14 @@ fetch_bucket_keys <- function(nmax = 5000){
     rbindlist(buckets)
 }
 
-fetch_bucket_contents <- function(bucketkeys,date = "2023-01-04",tz = "UTC"){
+fetch_bucket_contents <- function(bucketdt,date = "2023-01-09",nmax = NULL){
+  if(!is.null(nmax))
+    keys <-bucketdt[as_date(LastModified) == "2023-01-09",Key] %>% head(nmax)
+  else keys <-bucketdt[as_date(LastModified) == "2023-01-09",Key]
     x1 <-
-        bucketkeys |>
+    keys %>% 
         map(
-            ~ try(s3read_using(FUN = data.table::fread, object = glue("s3://{dt1$Bucket[1]}/",.x),
+            ~ try(s3read_using(FUN = data.table::fread, object = glue("s3://{bucketdt$Bucket[1]}/",.x),
                                opts = list(key = Sys.getenv("AWS_ACCESS_KEY_ID"),
                                            secret = Sys.getenv("AWS_SECRET_ACCESS_KEY"))))
         )
